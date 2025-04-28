@@ -12,7 +12,8 @@
 
 Для роутеров на процессорах mips32 - [xray-linux-mips32](https://raw.githubusercontent.com/jameszeroX/Xray-core-UPX/main/Xray-linux-mips32/xray)
 
+-
 
-Если не знаете, какой бинарник подходит для вашей модели роутера, уточните в телеграм-чате https://t.me/+SZWOjSlvYpdlNmMy
+Если не знаете, какой бинарник подходит для вашей модели роутера, уточните в [телеграм-чате](https://t.me/+SZWOjSlvYpdlNmMy)
 
 Origin: https://github.com/XTLS/Xray-core
