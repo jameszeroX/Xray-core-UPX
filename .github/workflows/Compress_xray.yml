@@ -1,0 +1,61 @@
+name: Compress and Upload Xray Binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 25.9.11)'
+        required: true
+      prerelease:
+        description: 'Mark as pre-release'
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y wget unzip upx-ucl
+
+      - name: Download and process Xray-linux-arm64-v8a.zip
+        run: |
+          wget https://github.com/XTLS/Xray-core/releases/download/v${{ inputs.version }}/Xray-linux-arm64-v8a.zip
+          unzip Xray-linux-arm64-v8a.zip xray
+          upx --best xray
+          zip Xray-linux-arm64-v8a.zip xray
+          rm xray
+
+      - name: Download and process Xray-linux-mips32le.zip
+        run: |
+          wget https://github.com/XTLS/Xray-core/releases/download/v${{ inputs.version }}/Xray-linux-mips32le.zip
+          unzip Xray-linux-mips32le.zip xray
+          upx --best xray
+          zip Xray-linux-mips32le.zip xray
+          rm xray
+
+      - name: Download and process Xray-linux-mips32.zip
+        run: |
+          wget https://github.com/XTLS/Xray-core/releases/download/v${{ inputs.version }}/Xray-linux-mips32.zip
+          unzip Xray-linux-mips32.zip xray
+          upx --best xray
+          zip Xray-linux-mips32.zip xray
+          rm xray
+
+      - name: Create Release and Upload Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v${{ inputs.version }} \
+            --title "Compressed Xray Binaries v${{ inputs.version }}" \
+            --notes "Compressed versions of Xray binaries for selected architectures" \
+            ${{ inputs.prerelease == 'true' && '--prerelease' || '' }}
+          gh release upload v${{ inputs.version }} Xray-linux-arm64-v8a.zip Xray-linux-mips32le.zip Xray-linux-mips32.zip
