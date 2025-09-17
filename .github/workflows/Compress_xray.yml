@@ -29,29 +29,26 @@ jobs:
       - name: Download and process Xray-linux-arm64-v8a.zip
         run: |
           wget https://github.com/XTLS/Xray-core/releases/download/v${{ inputs.version }}/Xray-linux-arm64-v8a.zip
-          unzip -j Xray-linux-arm64-v8a.zip xray -d temp
+          unzip -j Xray-linux-arm64-v8a.zip xray
           rm Xray-linux-arm64-v8a.zip
-          upx --best temp/xray
-          zip Xray-linux-arm64-v8a.zip temp/xray
-          rm -rf temp
+          upx --best xray
+          zip Xray-linux-arm64-v8a.zip xray
 
       - name: Download and process Xray-linux-mips32le.zip
         run: |
           wget https://github.com/XTLS/Xray-core/releases/download/v${{ inputs.version }}/Xray-linux-mips32le.zip
-          unzip -j Xray-linux-mips32le.zip xray -d temp
+          unzip -j Xray-linux-mips32le.zip xray
           rm Xray-linux-mips32le.zip
-          upx --best temp/xray
-          zip Xray-linux-mips32le.zip temp/xray
-          rm -rf temp
+          upx --best xray
+          zip Xray-linux-mips32le.zip xray
 
       - name: Download and process Xray-linux-mips32.zip
         run: |
           wget https://github.com/XTLS/Xray-core/releases/download/v${{ inputs.version }}/Xray-linux-mips32.zip
-          unzip -j Xray-linux-mips32.zip xray -d temp
+          unzip -j Xray-linux-mips32.zip xray
           rm Xray-linux-mips32.zip
-          upx --best temp/xray
-          zip Xray-linux-mips32.zip temp/xray
-          rm -rf temp
+          upx --best xray
+          zip Xray-linux-mips32.zip xray
 
       - name: Create Release and Upload Assets
         env:
