@@ -30,6 +30,7 @@ jobs:
         run: |
           wget https://github.com/XTLS/Xray-core/releases/download/v${{ inputs.version }}/Xray-linux-arm64-v8a.zip
           unzip -j Xray-linux-arm64-v8a.zip xray -d temp
+          rm Xray-linux-arm64-v8a.zip
           upx --best temp/xray
           zip Xray-linux-arm64-v8a.zip temp/xray
           rm -rf temp
@@ -38,6 +39,7 @@ jobs:
         run: |
           wget https://github.com/XTLS/Xray-core/releases/download/v${{ inputs.version }}/Xray-linux-mips32le.zip
           unzip -j Xray-linux-mips32le.zip xray -d temp
+          rm Xray-linux-mips32le.zip
           upx --best temp/xray
           zip Xray-linux-mips32le.zip temp/xray
           rm -rf temp
@@ -46,6 +48,7 @@ jobs:
         run: |
           wget https://github.com/XTLS/Xray-core/releases/download/v${{ inputs.version }}/Xray-linux-mips32.zip
           unzip -j Xray-linux-mips32.zip xray -d temp
+          rm Xray-linux-mips32.zip
           upx --best temp/xray
           zip Xray-linux-mips32.zip temp/xray
           rm -rf temp
@@ -55,7 +58,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create v${{ inputs.version }} \
-            --title "Compressed Xray Binaries for Routers v${{ inputs.version }}" \
+            --title "UPX-Compressed Xray Binaries for Routers v${{ inputs.version }}" \
             --notes "Compressed Xray binary files for selected architectures" \
             ${{ inputs.prerelease == 'true' && '--prerelease' || '' }}
           gh release upload v${{ inputs.version }} Xray-linux-arm64-v8a.zip Xray-linux-mips32le.zip Xray-linux-mips32.zip
