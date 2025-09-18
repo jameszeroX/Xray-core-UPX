@@ -6,6 +6,7 @@ on:
       version:
         description: 'Release version (e.g., 25.9.11)'
         required: true
+        type: string
       prerelease:
         description: 'Mark as pre-release'
         type: boolean
@@ -53,12 +54,16 @@ jobs:
           zip Xray-linux-mips32.zip xray
           rm xray
 
-      - name: Create Release and Upload Assets
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: "UPX-Compressed Xray Binaries for Routers v${{ inputs.version }}"
+          body: "Compressed Xray binary files for selected architectures"
+          prerelease: ${{ inputs.prerelease }}
+          files: |
+            Xray-linux-arm64-v8a.zip
+            Xray-linux-mips32le.zip
+            Xray-linux-mips32.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create v${{ inputs.version }} \
-            --title "UPX-Compressed Xray Binaries for Routers v${{ inputs.version }}" \
-            --notes "Compressed Xray binary files for selected architectures" \
-            ${{ inputs.prerelease == 'true' && '--prerelease' || '' }}
-          gh release upload v${{ inputs.version }} Xray-linux-arm64-v8a.zip Xray-linux-mips32le.zip Xray-linux-mips32.zip
