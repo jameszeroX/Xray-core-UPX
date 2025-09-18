@@ -2,7 +2,7 @@
 
 Сжатые с помощью UPX бинарники xray-core для установки во внутреннюю память роутеров
 
-## Прямые сылки на загрузку:
+## Прямые сылки на загрузку
 
 Для роутеров на процессорах ARM - [xray-linux-arm64-v8a](https://github.com/jameszeroX/Xray-core-UPX/releases/latest/download/Xray-linux-arm64-v8a.zip)
 
