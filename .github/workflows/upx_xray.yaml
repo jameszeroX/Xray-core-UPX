@@ -58,7 +58,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ inputs.version }}
-          name: "UPX-Compressed Xray Binaries for Routers v${{ inputs.version }}"
+          name: "v${{ inputs.version }} Xray-core UPXed"
           body: "Compressed Xray binary files for selected architectures"
           prerelease: ${{ inputs.prerelease }}
           files: |

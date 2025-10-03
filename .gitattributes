@@ -1,0 +1,6 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Unix files that are always LF
+*.md text eol=lf
+*.yaml text eol=lf
