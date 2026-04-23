@@ -20,12 +20,31 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v7
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_tag_gpgsign: true
+          git_config_global: true
 
       - name: Install dependencies
         run: |
           sudo apt update
           sudo apt install -y wget unzip upx-ucl
+
+      - name: Set up variables
+        id: vars
+        run: |
+          TAG_NAME="v${{ inputs.version }}"
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "REPO_NAME=${{ github.repository }}" >> $GITHUB_ENV
 
       - name: Download and process Xray-linux-arm64-v8a.zip
         run: |
@@ -54,16 +73,133 @@ jobs:
           zip Xray-linux-mips32.zip xray
           rm xray
 
+      - name: Create checksums
+        run: |
+          for file in Xray-linux-*.zip; do
+            if [ -f "$file" ]; then
+              sha256sum "$file" > "${file}.sha256"
+              echo "Created ${file}.sha256"
+              cat "${file}.sha256"
+            fi
+          done
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          TAG_NAME="v${{ inputs.version }}"
+          REPO_NAME="${{ github.repository }}"
+          
+          cat > release_notes.md << EOF
+          ## 🔧 UPX Compressed Xray Binaries
+
+          **Version:** v${{ inputs.version }}
+          **Compression:** UPX --best
+
+          ### 📊 Download Statistics
+
+          | File | Downloads |
+          | Xray-linux-arm64-v8a.zip | ![Downloads](https://img.shields.io/github/downloads/${REPO_NAME}/${TAG_NAME}/Xray-linux-arm64-v8a.zip?label=downloads&style=flat-square) |
+          | Xray-linux-mips32le.zip | ![Downloads](https://img.shields.io/github/downloads/${REPO_NAME}/${TAG_NAME}/Xray-linux-mips32le.zip?label=downloads&style=flat-square) |
+          | Xray-linux-mips32.zip | ![Downloads](https://img.shields.io/github/downloads/${REPO_NAME}/${TAG_NAME}/Xray-linux-mips32.zip?label=downloads&style=flat-square) |
+
+          ### 📦 Included files:
+          - \`Xray-linux-arm64-v8a.zip\` (ARM64)
+          - \`Xray-linux-mips32le.zip\` (MIPS32 LE)
+          - \`Xray-linux-mips32.zip\` (MIPS32)
+
+          ### 🔐 SHA256 Checksums:
+          \`\`\`
+          $(cat Xray-linux-*.sha256 2>/dev/null || echo "No checksums available")
+          \`\`\`
+
+          ### 📈 Total downloads for this release
+          ![Total Downloads](https://img.shields.io/github/downloads/${REPO_NAME}/${TAG_NAME}/total?label=total%20downloads&style=flat-square&color=blue)
+          EOF
+          echo "✅ Release notes generated"
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse "${{ env.TAG_NAME }}" >/dev/null 2>&1; then
+            echo "tag_exists=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Тег ${{ env.TAG_NAME }} уже существует"
+          else
+            echo "tag_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Delete existing tag (if needed)
+        if: steps.check_tag.outputs.tag_exists == 'true'
+        run: |
+          echo "Удаляем существующий тег ${{ env.TAG_NAME }}..."
+          git tag -d "${{ env.TAG_NAME }}"
+          git push origin --delete "${{ env.TAG_NAME }}" || true
+          echo "✅ Тег удален"
+
+      - name: Create signed tag
+        run: |
+          echo "Создание подписанного тега ${{ env.TAG_NAME }}..."
+          
+          if [ "${{ github.event.inputs.prerelease }}" = "true" ]; then
+            TAG_MESSAGE="Pre-release v${{ inputs.version }} - UPX compressed Xray binaries"
+          else
+            TAG_MESSAGE="Release v${{ inputs.version }} - UPX compressed Xray binaries"
+          fi
+          
+          git tag -s "${{ env.TAG_NAME }}" -m "$TAG_MESSAGE"
+          echo "✅ Подписанный тег создан"
+
+      - name: Push signed tag
+        run: |
+          git push origin "${{ env.TAG_NAME }}"
+          echo "✅ Тег отправлен в репозиторий"
+
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ inputs.version }}
-          name: "v${{ inputs.version }} Xray-core UPXed"
-          body: "Compressed Xray binary files for selected architectures"
-          prerelease: ${{ inputs.prerelease }}
-          files: |
-            Xray-linux-arm64-v8a.zip
-            Xray-linux-mips32le.zip
-            Xray-linux-mips32.zip
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_FLAGS=""
+          if [ "${{ github.event.inputs.prerelease }}" = "true" ]; then
+            RELEASE_FLAGS="--prerelease"
+          fi
+          
+          gh release create "${{ env.TAG_NAME }}" \
+            Xray-linux-arm64-v8a.zip \
+            Xray-linux-arm64-v8a.zip.sha256 \
+            Xray-linux-mips32le.zip \
+            Xray-linux-mips32le.zip.sha256 \
+            Xray-linux-mips32.zip \
+            Xray-linux-mips32.zip.sha256 \
+            --title "v${{ inputs.version }} Xray-core UPXed" \
+            --notes-file release_notes.md \
+            $RELEASE_FLAGS \
+            --verify-tag
+          
+          echo "✅ Релиз ${{ env.TAG_NAME }} создан"
+
+      - name: Verify signed tag
+        run: |
+          echo "Проверка подписи тега ${{ env.TAG_NAME }}..."
+          
+          if git tag -v "${{ env.TAG_NAME }}" 2>&1; then
+            echo "✅ Тег ${{ env.TAG_NAME }} успешно подписан и верифицирован!"
+          else
+            echo "⚠️ Предупреждение: Не удалось верифицировать подпись тега"
+            echo "Убедитесь, что публичный GPG ключ добавлен в профиль GitHub"
+            echo "https://github.com/settings/keys"
+          fi
+
+      - name: Summary
+        run: |
+          echo "## 🎉 UPX Compressed Release" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Версия:** \`v${{ inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Тип:** ${{ github.event.inputs.prerelease == 'true' && 'Pre-release' || 'Release' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Релиз:** https://github.com/${{ github.repository }}/releases/tag/v${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Сжатые файлы:" >> $GITHUB_STEP_SUMMARY
+          echo "- \`Xray-linux-arm64-v8a.zip\` (ARM64)" >> $GITHUB_STEP_SUMMARY
+          echo "- \`Xray-linux-mips32le.zip\` (MIPS32 LE)" >> $GITHUB_STEP_SUMMARY
+          echo "- \`Xray-linux-mips32.zip\` (MIPS32)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🗜️ Сжатие UPX --best" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔑 Статус верификации: ✅ Тег подписан" >> $GITHUB_STEP_SUMMARY
