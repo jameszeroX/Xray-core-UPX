@@ -27,4 +27,4 @@
 
 ## Источник
 
-Origin: https://github.com/XTLS/Xray-core
+https://github.com/XTLS/Xray-core
