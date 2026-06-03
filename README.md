@@ -1,20 +1,20 @@
 # Xray-core-UPX
 
-Сжатые с помощью UPX бинарники xray-core для установки во внутреннюю память роутеров
+Сжатые с помощью UPX бинарники xray-core для установки во внутреннюю память роутеров и для обычной установки
 
 ## Прямые ссылки на загрузку
 
-Для роутеров на процессорах ARM - [xray-linux-arm64-v8a](https://github.com/jameszeroX/Xray-core-UPX/releases/latest/download/Xray-linux-arm64-v8a.zip)
+Для роутеров на процессорах arm64 - [xray-linux-arm64-v8a](https://github.com/jameszeroX/Xray-core-UPX/releases/latest/download/Xray-linux-arm64-v8a.zip)
 
 Для роутеров на процессорах mips32le - [xray-linux-mips32le](https://github.com/jameszeroX/Xray-core-UPX/releases/latest/download/Xray-linux-mips32le.zip)
 
-Для роутеров Keenetic Skipper 4G (KN-2910) и Keenetic 4G (KN-1212) - [xray-linux-mips32le](https://raw.githubusercontent.com/jameszeroX/Xray-core-UPX/main/4G/Xray-linux-mips32le.zip) - ([информация](https://github.com/jameszeroX/Xray-core-UPX/tree/main/4G))
-
 Для роутеров на процессорах mips32 - [xray-linux-mips32](https://github.com/jameszeroX/Xray-core-UPX/releases/latest/download/Xray-linux-mips32.zip)
+
+Для роутеров Keenetic Skipper 4G (KN-2910) и Keenetic 4G (KN-1212) - [xray-linux-mips32le](https://raw.githubusercontent.com/jameszeroX/Xray-core-UPX/main/4G/Xray-linux-mips32le_softfloat.zip)
 
 ##
 
-Если не знаете, какой бинарник подходит для вашей модели роутера, уточните в [телеграм-чате](https://t.me/+8Cvh7oVf6cE0MWRi)
+Требуемую архитектуру бинарника для вашего роутера можете посмотреть в [таблице](https://github.com/jameszeroX/XKeen/wiki/Routers-Info)
 
 ##
 
