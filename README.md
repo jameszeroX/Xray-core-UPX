@@ -10,7 +10,7 @@
 
 Для роутеров на процессорах mips32 - [xray-linux-mips32](https://github.com/jameszeroX/Xray-core-UPX/releases/latest/download/Xray-linux-mips32.zip)
 
-Для роутеров Keenetic Skipper 4G (KN-2910) и Keenetic 4G (KN-1212) - [xray-linux-mips32le](https://github.com/jameszeroX/Xray-core-UPX/releases/latest/download/Xray-linux-mips32le-softfloat.zip)
+Для роутеров Keenetic 4G (KN-1212), Hero 4G (KN-2310/KN-2311) и Skipper 4G (KN-2910) - [xray-linux-mips32le](https://github.com/jameszeroX/Xray-core-UPX/releases/latest/download/Xray-linux-mips32le-softfloat.zip)
 
 ##
 
